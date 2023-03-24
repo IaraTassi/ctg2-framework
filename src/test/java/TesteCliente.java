@@ -1,4 +1,5 @@
 import io.restassured.http.ContentType;
+import org.apache.http.HttpStatus;
 import org.hamcrest.core.IsEqual;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,8 @@ public class TesteCliente {
 
     String enderecoApiCliente = "http://localhost:8080/";
     String endpointCliente = "cliente";
+    String endpointApagaTodos = "/apagaTodos";
+    String listavazia = "{}";
 
     //get
     @Test
@@ -23,7 +26,7 @@ public class TesteCliente {
         .when()
                 .get(enderecoApiCliente)
         .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.SC_OK)
                 .assertThat().body(new IsEqual<>(respostaEsperada));
 
     }
@@ -46,7 +49,7 @@ public class TesteCliente {
         .when()
                 .post(enderecoApiCliente+endpointCliente)
         .then()
-                .statusCode(201)
+                .statusCode(HttpStatus.SC_CREATED)
                 .assertThat().body(containsString(respostaEsperada));
     }
 
@@ -71,58 +74,54 @@ public class TesteCliente {
 
         String respostaEsperada = "{\"1004\":{\"nome\":\"Minnie Mouse\",\"idade\":33,\"id\":1004,\"risco\":0}}";
 
-    // tinha esquecido de tudo isso por isso meu teste passou
+    // tinha esquecido
         given()
                 .contentType(ContentType.JSON)
                 .body(clienteParaCadastrar)
         .when()
                 .post(enderecoApiCliente+endpointCliente)
         .then()
-                .statusCode(201);
+                .statusCode(HttpStatus.SC_CREATED);
+
         given()
                 .contentType(ContentType.JSON)
                 .body(clienteAtualizado)
         .when()
                 .put(enderecoApiCliente+endpointCliente)
         .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.SC_OK)
                 .assertThat().body(containsString(respostaEsperada));
 
     }
 
     //delete
-    @Test
-    @DisplayName("Deleta um cliente por id")
-    public void deletaCliente() {
+      @Test
+      @DisplayName("Quando deleta um cliente, então ele deve ser removido com sucesso")
+      public void deletaCliente() {
 
-        String clienteParaCadastrar = "{\n" +
-                "  \"id\": 1004,\n" +
-                "  \"idade\": 33,\n" +
-                "  \"nome\": \"Minnie Mouse\",\n" +
-                "  \"risco\": 0\n" +
-                "}";
-        String respostaEsperada = "Cliente removido: { NOME: Minnie Mouse, IDADE: 33, ID: 1004 }";
+          String clienteParaCadastrar = "{\n" +
+                  "  \"id\": 1004,\n" +
+                  "  \"idade\": 33,\n" +
+                  "  \"nome\": \"Minnie Mouse\",\n" +
+                  "  \"risco\": 0\n" +
+                  "}";
+          String respostaEsperada = "Cliente removido: { NOME: Minnie Mouse, IDADE: 33, ID: 1004 }";
 
-        given()
-                .contentType(ContentType.JSON)
-                .body(clienteParaCadastrar)
-        .when()
-                .post(enderecoApiCliente+endpointCliente)
-        .then()
-                .statusCode(201);
+          given()
+                  .contentType(ContentType.JSON)
+                  .body(clienteParaCadastrar)
+                  .when()
+                  .post(enderecoApiCliente + endpointCliente)
+                  .then()
+                  .statusCode(HttpStatus.SC_CREATED);
 
-        given()
-                .contentType(ContentType.JSON)
-        .when()
-                .delete(enderecoApiCliente+endpointCliente+"/1004")
-        .then()
-                .statusCode(200)
-                .body(new IsEqual<>(respostaEsperada));
+          given()
+                  .contentType(ContentType.JSON)
+                  .when()
+                  .delete(enderecoApiCliente + endpointCliente + "/1004")
+                  .then()
+                  .statusCode(HttpStatus.SC_OK)
+                  .body(new IsEqual<>(respostaEsperada));
+
+      }
     }
-
-
-
-
-
-
-}
